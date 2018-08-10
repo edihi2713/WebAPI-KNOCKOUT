@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="Meucci3Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="Carreras">
+    <Key>
+      <PropertyRef Name="crrCarreraId" />
+    </Key>
+    <Property Name="crrCarreraId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="crrDescripcion" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="crrObservacion" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+    <Property Name="crrAnulado" Type="Boolean" Nullable="false" />
+    <Property Name="crrFechaCreacion" Type="DateTime" Precision="3" />
+    <Property Name="empEmpleadoIdCreador" Type="Int32" />
+    <Property Name="crrFechaDesde" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="crrFechaHasta" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Empleados" Relationship="Meucci3Model.FK_Carreras_EmpleadoCreador" FromRole="Carreras" ToRole="Empleados" />
+  </EntityType>
+  <EntityContainer Name="Meucci3Entities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Carreras" EntityType="Self.Carreras" />
+    <EntitySet Name="Empleados" EntityType="Meucci3Model.Empleados" />
+    <AssociationSet Name="FK_Carreras_EmpleadoCreador" Association="Meucci3Model.FK_Carreras_EmpleadoCreador">
+      <End Role="Empleados" EntitySet="Empleados" />
+      <End Role="Carreras" EntitySet="Carreras" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Empleados_Empleados" Association="Meucci3Model.FK_Empleados_Empleados">
+      <End Role="Empleados" EntitySet="Empleados" />
+      <End Role="Empleados1" EntitySet="Empleados" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Empleados_Empleados1" Association="Meucci3Model.FK_Empleados_Empleados1">
+      <End Role="Empleados" EntitySet="Empleados" />
+      <End Role="Empleados1" EntitySet="Empleados" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="Empleados">
+    <Key>
+      <PropertyRef Name="empEmpleadoId" />
+    </Key>
+    <Property Name="empEmpleadoId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="empNombre" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="empApellido" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="empFechaNacimiento" Type="DateTime" Precision="0" />
+    <Property Name="empOrden" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="tpeTipoEmpleadoId" Type="Int32" Nullable="false" />
+    <Property Name="sexSexoId" Type="Int32" />
+    <Property Name="eteEstadoEmpleadoId" Type="Int32" Nullable="false" />
+    <Property Name="paiPaisOrigenId" Type="Int32" />
+    <Property Name="proProvinciaOrigenId" Type="Int32" />
+    <Property Name="lnuLocalidadOrigenId" Type="Int32" />
+    <Property Name="empEmail" Type="String" Nullable="false" MaxLength="70" FixedLength="false" Unicode="true" />
+    <Property Name="empEnLicenciaProlongada" Type="Boolean" />
+    <Property Name="empObservaciones" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+    <Property Name="empConFoto" Type="Boolean" />
+    <NavigationProperty Name="Carreras" Relationship="Meucci3Model.FK_Carreras_EmpleadoCreador" FromRole="Empleados" ToRole="Carreras" />
+    <NavigationProperty Name="Empleados1" Relationship="Meucci3Model.FK_Empleados_Empleados" FromRole="Empleados" ToRole="Empleados1" />
+    <NavigationProperty Name="Empleados2" Relationship="Meucci3Model.FK_Empleados_Empleados" FromRole="Empleados1" ToRole="Empleados" />
+    <NavigationProperty Name="Empleados11" Relationship="Meucci3Model.FK_Empleados_Empleados1" FromRole="Empleados" ToRole="Empleados1" />
+    <NavigationProperty Name="Empleados3" Relationship="Meucci3Model.FK_Empleados_Empleados1" FromRole="Empleados1" ToRole="Empleados" />
+  </EntityType>
+  <Association Name="FK_Carreras_EmpleadoCreador">
+    <End Type="Meucci3Model.Empleados" Role="Empleados" Multiplicity="0..1" />
+    <End Type="Meucci3Model.Carreras" Role="Carreras" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Empleados">
+        <PropertyRef Name="empEmpleadoId" />
+      </Principal>
+      <Dependent Role="Carreras">
+        <PropertyRef Name="empEmpleadoIdCreador" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Empleados_Empleados">
+    <End Type="Meucci3Model.Empleados" Role="Empleados" Multiplicity="1" />
+    <End Type="Meucci3Model.Empleados" Role="Empleados1" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="Empleados">
+        <PropertyRef Name="empEmpleadoId" />
+      </Principal>
+      <Dependent Role="Empleados1">
+        <PropertyRef Name="empEmpleadoId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Empleados_Empleados1">
+    <End Type="Meucci3Model.Empleados" Role="Empleados" Multiplicity="1" />
+    <End Type="Meucci3Model.Empleados" Role="Empleados1" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="Empleados">
+        <PropertyRef Name="empEmpleadoId" />
+      </Principal>
+      <Dependent Role="Empleados1">
+        <PropertyRef Name="empEmpleadoId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema>
