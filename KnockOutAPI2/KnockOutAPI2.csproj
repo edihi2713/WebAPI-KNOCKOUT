@@ -101,6 +101,7 @@
     <Compile Include="Carreras.cs">
       <DependentUpon>MeucciEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Controllers\AttachmentController.cs" />
     <Compile Include="Controllers\CarrerasController.cs" />
     <Compile Include="Controllers\EmpleadosController.cs" />
     <Compile Include="Empleados.cs">
@@ -157,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Files\" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

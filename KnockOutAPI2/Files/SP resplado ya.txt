@@ -1,0 +1,177 @@
+-- =======================================================================================================          
+
+-- Author  : Alberto Pira          
+
+-- Create date : 30/10/2017          
+
+-- Description : Se crea el SP que verificará si existen diferencias (inconsistencias) entre la sociedad, 
+
+--				 sucursal, estructura o programa cliente entre colaboradores y superior          
+
+-- =======================================================================================================               
+
+
+
+CREATE PROCEDURE [dbo].[usp_VerificarInconsistencias]    
+
+@ColaboradoresId nVarchar(max) = NULL,      
+
+@SuperiorId Int =NULL    
+
+
+
+AS 
+
+
+
+BEGIN
+
+
+
+	--DECLARE @ColaboradoresId nvarchar(max) = '21223,36050,44044',
+
+	--@SuperiorId int = 1905 --14472
+
+
+
+	SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+	SET NOCOUNT ON;
+
+
+
+	SELECT * 
+
+	INTO #ColaboradoresTemp 
+
+	FROM fnc_Split(@ColaboradoresId) fc
+
+
+
+	SELECT 'SUP' as Tipo, ee.etrEstructuraId, ess.sscSociedadSucursalId, epc.pclProgramaClienteId
+
+	INTO #SuperiorTemp
+
+	FROM dbo.Empleados e
+
+	INNER JOIN EmpleadosEstructuras ee 
+
+		ON e.empEmpleadoId = ee.empEmpleadoId
+
+		AND GETDATE() between ee.eeuFechaDesde and isnull(ee.eeuFechaHasta,GETDATE())
+
+		AND ee.eeuAnulado= 0 
+
+		AND ee.eeuSoloLectura =0 
+
+	inner join Estructuras est on ee.etrEstructuraId = est.etrEstructuraId
+
+	INNER JOIN EmpleadosSociedadesSucursales ess 
+
+		ON e.empEmpleadoId = ess.empEmpleadoId
+
+		AND GETDATE() BETWEEN ess.essFechaDesde AND isnull(ess.essFechaHasta,GETDATE())
+
+		AND ess.essAnulado = 0 
+
+		AND ess.essSoloLectura = 0 
+
+	inner join SociedadesSucursales ss on ess.sscSociedadSucursalId = ss.sscSociedadSucursalId
+
+		and sscAnulado = 0
+
+	inner join Sociedades soc on ss.socSociedadId = soc.socSociedadId
+
+	inner join Sucursales suc on ss.sucSucursalId = suc.sucSucursalId
+
+	inner join Cargos c on ee.cgoCargoId = c.cgoCargoId 
+
+	LEFT JOIN EmpleadosProgramasClientes epc 
+
+		ON e.empEmpleadoId = epc.empEmpleadoId
+
+		AND epc.eeuEmpleadoEstructuraId = ee.eeuEmpleadoEstructuraId
+
+		AND GETDATE() between epc.epcFechaDesde and isnull(epcFechaHasta,GETDATE())
+
+		AND epc.epcAnulado = 0
+
+		AND epc.epcSoloLectura = 0 
+
+	left join ProgramasClientes pc on epc.pclProgramaClienteId = pc.pclProgramaClienteId 
+
+	WHERE e.empEmpleadoId = @SuperiorId
+
+
+
+	SELECT e.empEmpleadoId, e.empNombre, e.empApellido,
+
+	CASE WHEN (st1.etrEstructuraId IS NULL AND st.etrEstructuraId IS NOT NULL) OR 
+
+			  (st2.sscSociedadSucursalId IS NULL AND st.sscSociedadSucursalId IS NOT NULL) OR 
+
+			  (st3.pclProgramaClienteId IS NULL AND st.pclProgramaClienteId IS NOT NULL) THEN 1 ELSE 0 END AS Inconsistencia
+
+	FROM dbo.#ColaboradoresTemp ct
+
+	INNER JOIN dbo.Empleados e
+
+		ON e.empEmpleadoId = ct.[Value]
+
+	INNER JOIN EmpleadosEstructuras ee 
+
+		ON e.empEmpleadoId = ee.empEmpleadoId
+
+		AND GETDATE() between ee.eeuFechaDesde and isnull(ee.eeuFechaHasta,GETDATE())
+
+		AND ee.eeuAnulado= 0 
+
+		AND ee.eeuSoloLectura =0 
+
+	INNER JOIN EmpleadosSociedadesSucursales ess 
+
+		ON e.empEmpleadoId = ess.empEmpleadoId
+
+		AND GETDATE() BETWEEN ess.essFechaDesde AND isnull(ess.essFechaHasta,GETDATE())
+
+		AND ess.essAnulado = 0 
+
+		AND ess.essSoloLectura = 0 
+
+	LEFT JOIN EmpleadosProgramasClientes epc 
+
+		ON e.empEmpleadoId = epc.empEmpleadoId
+
+		AND epc.eeuEmpleadoEstructuraId = ee.eeuEmpleadoEstructuraId
+
+		AND GETDATE() between epc.epcFechaDesde and isnull(epcFechaHasta,GETDATE())
+
+		AND epc.epcAnulado = 0
+
+		AND epc.epcSoloLectura = 0 
+
+	INNER JOIN #SuperiorTemp st
+
+		ON st.Tipo = 'SUP'	
+
+	LEFT JOIN #SuperiorTemp st1
+
+		ON st1.etrEstructuraId = ee.etrEstructuraId
+
+	LEFT JOIN #SuperiorTemp st2
+
+		ON st2.sscSociedadSucursalId = ess.sscSociedadSucursalId
+
+	LEFT JOIN #SuperiorTemp st3
+
+		ON st3.pclProgramaClienteId = epc.pclProgramaClienteId
+
+
+
+	DROP TABLE #ColaboradoresTemp
+
+	DROP TABLE #SuperiorTemp
+
+
+
+END
